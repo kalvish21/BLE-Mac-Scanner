@@ -11,23 +11,23 @@ import CoreBluetooth
 
 class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDelegate, NSTableViewDataSource {
     
-
+    
     // 
     var starterArray:[String] = NSLocale.preferredLanguages
     
     //  
     var myArray = ["One","Two","Three","Four"]
-
+    
     //  BLE Stuff
     var myCentralManager = CBCentralManager()
     var peripheralArray = [CBPeripheral]() // create now empty array.
-
+    
     var fullPeripheralArray: [(String, String, String, String)] = [("UUIDString","RSSI", "Name", "Services1")]
     
     var myPeripheralDictionary:[String:(String, String, String, String)] = ["UUIDString":("UUIDString","RSSI", "Name","Services1")]
     
     var cleanAndSortedArray: [(String, String, String, String)] = [("UUIDString","RSSI", "Name","Services1")]
-
+    
     
     
     //  UI Stuff
@@ -44,7 +44,7 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
         if sender.state.rawValue == 1{
             updateStatusLabel("Scannning")
             myCentralManager.scanForPeripherals(withServices: nil, options: nil )   // call to scan for services
-
+            
             
         } else {
             updateStatusLabel("Not Scanning")
@@ -53,9 +53,9 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
         
         
     }
-
+    
     @IBAction func refreshButton(sender: NSButtonCell) {
-       
+        
         
         
         if sender.state.rawValue == 1{
@@ -66,37 +66,37 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
         } else {
             updateStatusLabel("Not Scanning")
             myCentralManager.stopScan()
-        
+            
             fullPeripheralArray = [("","","","")]
             cleanAndSortedArray = [("","","","")]
             tableView.reloadData()
-       
-        
-        
-        
+            
+            
+            
+            
         }
-
         
         
         
         
-       
-    
+        
+        
+        
     }
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         // Do any additional setup after loading the view.
     }
-
+    
     override var representedObject: Any? {
         didSet {
-        // Update the view, if already loaded.
+            // Update the view, if already loaded.
         }
     }
-
+    
     
     // NSTableView
     
@@ -106,7 +106,7 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
     
     
     func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {
-
+        
         if (tableColumn?.identifier)!.rawValue == "first" {
             let myString = cleanAndSortedArray[row].0
             return myString
@@ -115,13 +115,13 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
             let myString = "\(cleanAndSortedArray[row].1)"
             return myString
         }
-      
+        
         if (tableColumn?.identifier)!.rawValue == "third"{
             let myString = "\(cleanAndSortedArray[row].2)"
             return myString
-
+            
         }
-    
+        
         if (tableColumn?.identifier)!.rawValue == "forth"{
             let myString = "\(cleanAndSortedArray[row].3)"
             return myString
@@ -135,14 +135,14 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
         }
     }
     
-//        
-//        if tableColumn == 0 {
-//          return myArray[row]
-//        }  else {
-//            let reverseArray = myArray.reverse()
-//            return reverseArray[row]
-//        }
-//    }
+    //
+    //        if tableColumn == 0 {
+    //          return myArray[row]
+    //        }  else {
+    //            let reverseArray = myArray.reverse()
+    //            return reverseArray[row]
+    //        }
+    //    }
     
     
     //MARK  CoreBluetooth Stuff
@@ -156,24 +156,24 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
         
     }
     
-
     
-
+    
+    
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         
         print("centralManagerDidUpdateState")
         
         /*
-        typedef enum {
-        CBCentralManagerStateUnknown  = 0,
-        CBCentralManagerStateResetting ,
-        CBCentralManagerStateUnsupported ,
-        CBCentralManagerStateUnauthorized ,
-        CBCentralManagerStatePoweredOff ,
-        CBCentralManagerStatePoweredOn ,
-        } CBCentralManagerState;
-        */
+         typedef enum {
+         CBCentralManagerStateUnknown  = 0,
+         CBCentralManagerStateResetting ,
+         CBCentralManagerStateUnsupported ,
+         CBCentralManagerStateUnauthorized ,
+         CBCentralManagerStatePoweredOff ,
+         CBCentralManagerStatePoweredOn ,
+         } CBCentralManagerState;
+         */
         switch central.state{
         case .poweredOn:
             updateStatusLabel("poweredOn")
@@ -203,40 +203,40 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
     func updateStatusLabel(_ passedString: String ){
         labelStatus.stringValue = passedString
     }
-
-
-func updateOutputText(_ passedString: String ){
-       outputText.stringValue  = passedString + "\r" + outputText.stringValue
+    
+    
+    func updateOutputText(_ passedString: String ){
+        outputText.stringValue  = passedString + "\r" + outputText.stringValue
     }
-
+    
     
     func centralManager(central: CBCentralManager, didDiscoverPeripheral peripheral: CBPeripheral, advertisementData: [String : AnyObject], RSSI: NSNumber) {
-    
+        
         // Refresh Entry or Make an New Entry into Dictionary
         let myUUIDString = peripheral.identifier.uuidString
         let myRSSIString = String(RSSI.intValue)
         let myNameString = peripheral.name
         var myAdvertisedServices = peripheral.services
         
-      //  var myServices1 = peripheral.services
-      //  var serviceString = " service string "
+        //  var myServices1 = peripheral.services
+        //  var serviceString = " service string "
         
         var myArray = advertisementData
         let advertString = "\(advertisementData)"
         
-       
         
-     //   serviceString = "service: \(myArray)"
-     //   println(serviceString)
-     //   updateOutputText("service:" + serviceString)
-            
-    
+        
+        //   serviceString = "service: \(myArray)"
+        //   println(serviceString)
+        //   updateOutputText("service:" + serviceString)
+        
+        
         updateOutputText("\r")
         updateOutputText("UUID: " + myUUIDString)
         updateOutputText("RSSI: " + myRSSIString)
         updateOutputText("Name:  \(myNameString)")
         updateOutputText("advertString: " + advertString)
-
+        
         
         
         let myTuple = (myUUIDString, myRSSIString, "\(myNameString)", advertString )
@@ -247,7 +247,7 @@ func updateOutputText(_ passedString: String ){
         
         // Tranfer Dictionary to Array
         for eachItem in myPeripheralDictionary{
-                fullPeripheralArray.append(eachItem.1)
+            fullPeripheralArray.append(eachItem.1)
         }
         
         // Sort Array by RSSI
@@ -257,8 +257,6 @@ func updateOutputText(_ passedString: String ){
         })
         
         tableView.reloadData()
-        
-        }
-
+    }
 }
 
