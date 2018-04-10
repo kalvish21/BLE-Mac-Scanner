@@ -13,7 +13,7 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
     
 
     // 
-    var starterArray:[AnyObject] = NSLocale.preferredLanguages()
+    var starterArray:[String] = NSLocale.preferredLanguages
     
     //  
     var myArray = ["One","Two","Three","Four"]
@@ -22,11 +22,11 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
     var myCentralManager = CBCentralManager()
     var peripheralArray = [CBPeripheral]() // create now empty array.
 
-    var fullPeripheralArray = [("UUIDString","RSSI", "Name", "Services1")]
+    var fullPeripheralArray: [(String, String, String, String)] = [("UUIDString","RSSI", "Name", "Services1")]
     
     var myPeripheralDictionary:[String:(String, String, String, String)] = ["UUIDString":("UUIDString","RSSI", "Name","Services1")]
     
-    var cleanAndSortedArray = [("UUIDString","RSSI", "Name","Services1")]
+    var cleanAndSortedArray: [(String, String, String, String)] = [("UUIDString","RSSI", "Name","Services1")]
 
     
     
@@ -39,11 +39,11 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
     
     @IBAction func scanButtonCell(sender: NSButtonCell) {
         
-        print("sender.state" + String(sender.state) + "\r")
+        print("sender.state" + String(describing: sender.state) + "\r")
         
-        if sender.state == 1{
+        if sender.state.rawValue == 1{
             updateStatusLabel("Scannning")
-            myCentralManager.scanForPeripheralsWithServices(nil, options: nil )   // call to scan for services
+            myCentralManager.scanForPeripherals(withServices: nil, options: nil )   // call to scan for services
 
             
         } else {
@@ -58,9 +58,9 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
        
         
         
-        if sender.state == 1{
+        if sender.state.rawValue == 1{
             updateStatusLabel("Scannning")
-            myCentralManager.scanForPeripheralsWithServices(nil, options: nil )   // call to scan for services
+            myCentralManager.scanForPeripherals(withServices: nil, options: nil )   // call to scan for services
             
             
         } else {
@@ -91,7 +91,7 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
         // Do any additional setup after loading the view.
     }
 
-    override var representedObject: AnyObject? {
+    override var representedObject: Any? {
         didSet {
         // Update the view, if already loaded.
         }
@@ -105,25 +105,24 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
     }
     
     
-    
-    func tableView(tableView: NSTableView, objectValueForTableColumn tableColumn: NSTableColumn?, row: Int) -> AnyObject? {
+    func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {
 
-        if tableColumn?.identifier == "first" {
+        if (tableColumn?.identifier)!.rawValue == "first" {
             let myString = cleanAndSortedArray[row].0
             return myString
         }
-        if tableColumn?.identifier == "second"{
+        if (tableColumn?.identifier)!.rawValue == "second"{
             let myString = "\(cleanAndSortedArray[row].1)"
             return myString
         }
       
-        if tableColumn?.identifier == "third"{
+        if (tableColumn?.identifier)!.rawValue == "third"{
             let myString = "\(cleanAndSortedArray[row].2)"
             return myString
 
         }
     
-        if tableColumn?.identifier == "forth"{
+        if (tableColumn?.identifier)!.rawValue == "forth"{
             let myString = "\(cleanAndSortedArray[row].3)"
             return myString
             
@@ -153,7 +152,7 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
     // Put CentralManager in the main queue
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        myCentralManager = CBCentralManager(delegate: self, queue: dispatch_get_main_queue())
+        myCentralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
         
     }
     
@@ -161,7 +160,7 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
     
 
     
-    func centralManagerDidUpdateState(central: CBCentralManager) {
+    func centralManagerDidUpdateState(_ central: CBCentralManager) {
         
         print("centralManagerDidUpdateState")
         
@@ -176,23 +175,23 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
         } CBCentralManagerState;
         */
         switch central.state{
-        case .PoweredOn:
+        case .poweredOn:
             updateStatusLabel("poweredOn")
             
             
-        case .PoweredOff:
+        case .poweredOff:
             updateStatusLabel("Central State PoweredOFF")
             
-        case .Resetting:
+        case .resetting:
             updateStatusLabel("Central State Resetting")
             
-        case .Unauthorized:
+        case .unauthorized:
             updateStatusLabel("Central State Unauthorized")
             
-        case .Unknown:
+        case .unknown:
             updateStatusLabel("Central State Unknown")
             
-        case .Unsupported:
+        case .unsupported:
             updateStatusLabel("Central State Unsupported")
             
         default:
@@ -201,12 +200,12 @@ class ViewController: NSViewController, CBCentralManagerDelegate, CBPeripheralDe
         }
     }
     
-    func updateStatusLabel(passedString: String ){
+    func updateStatusLabel(_ passedString: String ){
         labelStatus.stringValue = passedString
     }
 
 
-func updateOutputText(passedString: String ){
+func updateOutputText(_ passedString: String ){
        outputText.stringValue  = passedString + "\r" + outputText.stringValue
     }
 
@@ -214,7 +213,7 @@ func updateOutputText(passedString: String ){
     func centralManager(central: CBCentralManager, didDiscoverPeripheral peripheral: CBPeripheral, advertisementData: [String : AnyObject], RSSI: NSNumber) {
     
         // Refresh Entry or Make an New Entry into Dictionary
-        let myUUIDString = peripheral.identifier.UUIDString
+        let myUUIDString = peripheral.identifier.uuidString
         let myRSSIString = String(RSSI.intValue)
         let myNameString = peripheral.name
         var myAdvertisedServices = peripheral.services
@@ -244,7 +243,7 @@ func updateOutputText(passedString: String ){
         myPeripheralDictionary[myTuple.0] = myTuple
         
         // Clean Array
-        fullPeripheralArray.removeAll(keepCapacity: false)
+        fullPeripheralArray.removeAll(keepingCapacity: false)
         
         // Tranfer Dictionary to Array
         for eachItem in myPeripheralDictionary{
@@ -253,22 +252,13 @@ func updateOutputText(passedString: String ){
         
         // Sort Array by RSSI
         //from http://www.andrewcbancroft.com/2014/08/16/sort-yourself-out-sorting-an-array-in-swift/
-        cleanAndSortedArray = fullPeripheralArray.sort({
-            (str1: (String,String,String,String) , str2: (String,String,String,String) ) -> Bool in
-            return Int(str1.1) > Int(str2.1)
+        cleanAndSortedArray = fullPeripheralArray.sorted(by: { (str1: (String,String,String,String) , str2: (String,String,String,String) ) -> Bool in
+            return Int(str1.1)! > Int(str2.1)!
         })
-        
-
-        
-
-        
         
         tableView.reloadData()
         
         }
-    
-    
-
 
 }
 
